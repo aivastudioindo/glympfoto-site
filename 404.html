@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>GlympFoto</title>
+<style>
+  html,body{margin:0;padding:0;height:100%;background:#0b0b0d;color:#e8e8ea;
+    font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+  #frame{position:fixed;inset:0;width:100%;height:100%;border:0;background:#0b0b0d}
+  #fallback{position:fixed;left:0;right:0;bottom:0;padding:10px 14px;font-size:13px;
+    background:rgba(0,0,0,.55);display:none;text-align:center}
+  #fallback a{color:#9ecbff}
+</style>
+</head>
+<body>
+<iframe id="frame" title="GlympFoto" allow="camera; microphone" referrerpolicy="no-referrer"></iframe>
+<div id="fallback">Memuat… <a id="direct" href="#">buka langsung</a></div>
+<script>
+(function () {
+  // Basis server asli (Tailscale Funnel, stabil per HP). Kalau URL ini berubah,
+  // cukup ganti satu baris ini lalu push ulang.
+  var BASE = 'https://tailscale-termux.taildcfa9a.ts.net';
+  var path = location.pathname + location.search + location.hash;
+
+  // Halaman viewer (/v/...) aman di-iframe (tanpa cookie) -> address bar tetap domain.
+  // Halaman admin/guest/API butuh cookie sesi & interaksi penuh -> redirect langsung
+  // agar login tidak diblokir aturan third-party cookie browser.
+  if (/^\/v(\/|$)/.test(location.pathname)) {
+    var url = BASE + path;
+    document.getElementById('frame').src = url;
+    var d = document.getElementById('direct');
+    d.href = url;
+    // Tampilkan tautan darurat kalau iframe gagal dimuat >12 detik.
+    setTimeout(function () {
+      try {
+        if (!document.getElementById('frame').contentWindow.length) {}
+      } catch (e) { /* cross-origin = justru tanda iframe jalan */ }
+      document.getElementById('fallback').style.display = 'block';
+      setTimeout(function () {
+        document.getElementById('fallback').style.display = 'none';
+      }, 8000);
+    }, 12000);
+  } else {
+    location.replace(BASE + path);
+  }
+})();
+</script>
+</body>
+</html>
