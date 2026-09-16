@@ -28,19 +28,13 @@
   // Admin (/) butuh cookie sesi -> redirect langsung agar login tidak diblokir third-party cookie.
   if (/^\/(v|s|g)(\/|$)/.test(location.pathname)) {
     var url = BASE + path;
-    document.getElementById('frame').src = url;
-    var d = document.getElementById('direct');
-    d.href = url;
-    // Tampilkan tautan darurat kalau iframe gagal dimuat >12 detik.
-    setTimeout(function () {
-      try {
-        if (!document.getElementById('frame').contentWindow.length) {}
-      } catch (e) { /* cross-origin = justru tanda iframe jalan */ }
-      document.getElementById('fallback').style.display = 'block';
-      setTimeout(function () {
-        document.getElementById('fallback').style.display = 'none';
-      }, 8000);
-    }, 12000);
+    var frame = document.getElementById('frame');
+    var fb = document.getElementById('fallback');
+    frame.src = url;
+    document.getElementById('direct').href = url;
+    var t = setTimeout(function () { fb.style.display = 'block'; setTimeout(function(){ fb.style.display='none'; }, 8000); }, 12000);
+    frame.onload = function(){ clearTimeout(t); fb.style.display='none'; };
+    frame.onerror = function(){ clearTimeout(t); fb.style.display='block'; };
   } else {
     location.replace(BASE + path);
   }
