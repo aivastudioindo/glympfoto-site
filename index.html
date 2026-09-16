@@ -24,10 +24,9 @@
   var BASE = 'https://tailscale-termux.taildcfa9a.ts.net';
   var path = location.pathname + location.search + location.hash;
 
-  // Halaman viewer (/v/...) aman di-iframe (tanpa cookie) -> address bar tetap domain.
-  // Halaman admin/guest/API butuh cookie sesi & interaksi penuh -> redirect langsung
-  // agar login tidak diblokir aturan third-party cookie browser.
-  if (/^\/v(\/|$)/.test(location.pathname)) {
+  // Viewer (/v/, /s/) + guest (/g) aman di-iframe -> address bar tetap domain.
+  // Admin (/) butuh cookie sesi -> redirect langsung agar login tidak diblokir third-party cookie.
+  if (/^\/(v|s|g)(\/|$)/.test(location.pathname)) {
     var url = BASE + path;
     document.getElementById('frame').src = url;
     var d = document.getElementById('direct');
