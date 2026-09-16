@@ -26,7 +26,17 @@
 
   // Viewer (/v/, /s/) + guest (/g) aman di-iframe -> address bar tetap domain.
   // Admin (/) butuh cookie sesi -> redirect langsung agar login tidak diblokir third-party cookie.
-  if (/^\/(v|s|g)(\/|$)/.test(location.pathname)) {
+  // Root (/) = halaman guest upload, jadi https://glympfoto.work.gd langsung bisa dipakai publik tanpa /g.
+  if (location.pathname === '/' || location.pathname === '/index.html') {
+    var url = BASE + '/g' + location.search + location.hash;
+    var frame = document.getElementById('frame');
+    var fb = document.getElementById('fallback');
+    frame.src = url;
+    document.getElementById('direct').href = url;
+    var t = setTimeout(function () { fb.style.display = 'block'; setTimeout(function(){ fb.style.display='none'; }, 8000); }, 12000);
+    frame.onload = function(){ clearTimeout(t); fb.style.display='none'; };
+    frame.onerror = function(){ clearTimeout(t); fb.style.display='block'; };
+  } else if (/^\/(v|s|g)(\/|$)/.test(location.pathname)) {
     var url = BASE + path;
     var frame = document.getElementById('frame');
     var fb = document.getElementById('fallback');
